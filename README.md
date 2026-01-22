@@ -18,6 +18,12 @@ The opencode-pipeline seems intended as a flexible, open-source framework for au
 #### Suggested Improvements
 To align with these insights, consider enhancements like adopting small or hierarchical models for better efficiency, adding recursive decomposition for context, incorporating adaptive mechanisms for reliability, integrating VCS for workflow management, and employing RAG with vectorization for knowledge retrieval and code/documentation handling.
 
+#### Getting Started
+To transition from research to execution, this repository includes a practical scaffolding system.
+- **Setup**: Run `./setup.sh` to initialize submodules and dependencies.
+- **Run**: Use `./start_swarm.sh` to detect local models and launch the orchestrator.
+- **Verify**: Follow the [Manual Testing Guide](MANUAL_TESTING.md) to validate the environment.
+
 ---
 
 In the rapidly advancing field of AI-assisted software engineering, integrating cutting-edge research is essential for evolving frameworks like opencode-pipeline. This updated review incorporates the Hierarchical Reasoning Model (HRM) paper, along with assessments of version control system (VCS) workflows for LLMs and retrieval-augmented generation (RAG) with vectorization for code and documentation. Building on prior evaluations of key works in AI alignment, model efficiency, reasoning illusions, recursive processing, scaling limits, and episodic memory, this expanded analysis holistically evaluates the repository's intent and proposes a refined list of improvements. Emphasis is placed on solutions for model selection, reliable outputs, advanced integrations such as self-directed UI exploration or swarm-based multi-party computation (MPC), VCS for dynamic workflow management, and RAG for knowledge-grounded generation. The goal is to foster robust, scalable pipelines that address theoretical risks while enhancing practical functionality across agentic systems.

@@ -1,9 +1,11 @@
 #!/bin/bash
 set -e
 
-# Load environment variables
+# Load environment variables (Safe Method)
 if [ -f "scaffolding/.env" ]; then
-    export $(cat scaffolding/.env | xargs)
+    set -a
+    source scaffolding/.env
+    set +a
 fi
 
 echo "🚀 Starting OpenCode Swarm..."

@@ -30,3 +30,16 @@ This table-driven approach ensures principled, low-friction alignment: For each 
 - [Ollama: Run large language models locally](https://ollama.com/)
 - [LM Studio: Discover, download, and run local LLMs](https://lmstudio.ai/)
 - [swarm-tools: Tools for building multi-agent systems](https://github.com/joelhooks/swarm-tools)
+
+## Phase 2: Execution & Verification
+
+### Assessment of Current State
+The repository provides a strong theoretical foundation (`README.md`) and a strategic roadmap (`STRATEGY.md`). However, to transition from "Strategy" to "Execution," strict verification of the scaffolding is required. The current scaffolding scripts (`setup.sh`, `start_swarm.sh`) provide the entry points, but manual verification is critical to ensure the "Local/Offline" preference is respected and models are correctly loaded.
+
+### Practical Steps
+To bridge the gap between High-Level Strategy and Low-Level Execution:
+1.  **Manual Verification**: A dedicated [Manual Testing Guide](MANUAL_TESTING.md) has been created to step developers through the verification process.
+2.  **Config Consolidation**: We identified a discrepancy between `detect_model.ts` (JSON output) and `orchestrator.ts` (YAML input). Phase 2 work will involve standardizing this to ensure dynamic preferences (like model selection) persist accurately.
+3.  **Iterative Testing**: The "Next Phase" involves running the swarm, auditing the logs, and confirming that the `backend-architect` and other experts are responsive under the selected model.
+
+**👉 Verification Action**: Refer to `MANUAL_TESTING.md` to validate the environment before proceeding to complex agent definitions.

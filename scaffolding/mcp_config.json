@@ -14,6 +14,13 @@
         "-y",
         "@modelcontextprotocol/server-memory"
       ]
+    },
+    "swarm-tools": {
+      "command": "bun",
+      "args": [
+        "run",
+        "swarm-tools/packages/opencode-swarm-plugin/claude-plugin/bin/swarm-mcp-server.ts"
+      ]
     }
   }
 }
