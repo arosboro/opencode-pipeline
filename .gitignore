@@ -1,0 +1,24 @@
+# System Files
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+.bun/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Build Artifacts
+dist/
+build/
+.turbo/
+coverage/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+bun.lockb

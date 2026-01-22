@@ -1,0 +1,6 @@
+[submodule "agents"]
+	path = agents
+	url = https://github.com/contains-studio/agents
+[submodule "swarm-tools"]
+	path = swarm-tools
+	url = https://github.com/joelhooks/swarm-tools
