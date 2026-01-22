@@ -45,7 +45,7 @@ function processDir(currentPath, relPath = '') {
   }
 
   for (const entry of entries) {
-    if (entry.name === '.git') continue;
+    if (entry.name === '.git' || entry.name === 'README.md') continue;
 
     const fullPath = path.join(currentPath, entry.name);
     const destPath = path.join(destCurrentPath, entry.name);
@@ -96,50 +96,14 @@ EOF
 SRC_DIRS="$REPO_ROOT/agents,$REPO_ROOT/scaffolding/overlays/agents" DEST_DIR="$OPENCODE_CONFIG_DIR/agents" bun "$OPENCODE_CONFIG_DIR/transform_agents.ts"
 rm "$OPENCODE_CONFIG_DIR/transform_agents.ts"
 
-# 2. Generate MCP Config with Absolute Paths
-echo "🔧 Generating MCP Configuration..."
-MCP_CONFIG_PATH="$OPENCODE_CONFIG_DIR/mcp_config.json"
-
-# We use Bun/Node to generate the JSON to handle avoiding escaping hell
-bun -e "
-const fs = require('fs');
-const path = require('path');
-const config = require('./scaffolding/mcp_config.json');
-
-const repoRoot = '$REPO_ROOT';
-
-// Update filesystem path to absolute
-if (config.mcpServers && config.mcpServers.filesystem) {
-    const args = config.mcpServers.filesystem.args;
-    const idx = args.indexOf('.');
-    if (idx !== -1) {
-        args[idx] = repoRoot;
-    }
-}
-
-// Update swarm-tools path to absolute
-if (config.mcpServers && config.mcpServers['swarm-tools']) {
-    const args = config.mcpServers['swarm-tools'].args;
-    // Find the argument that starts with swarm-tools/ and prepend repo root
-    for (let i = 0; i < args.length; i++) {
-        if (args[i].startsWith('swarm-tools/')) {
-            args[i] = path.join(repoRoot, args[i]);
-        }
-    }
-}
-
-console.log(JSON.stringify(config, null, 2));
-" > "$MCP_CONFIG_PATH"
-
-echo "✅ Generated MCP Config at: $MCP_CONFIG_PATH"
-
-# 3. Generate opencode.json (Model Config) via Dynamic Discovery
+# 3. Generate opencode.json (Model + MCP Config) via Dynamic Discovery
 echo "⚙️  Discovering Local Models from localhost:8080..."
 OPENCODE_JSON_PATH="$OPENCODE_CONFIG_DIR/opencode.json"
 
 # Use Bun to fetch models and generate config
 bun -e "
 const fs = require('fs');
+const path = require('path');
 
 async function main() {
   try {
@@ -152,7 +116,7 @@ async function main() {
     }
     
     const data = await response.json();
-    const models = data.data; // Array of { id: '...' }
+    const models = data.data; 
     
     if (!models || models.length === 0) {
         throw new Error('No models found in response');
@@ -160,7 +124,8 @@ async function main() {
 
     console.log(\`   Found \${models.length} models.\`);
     
-    const modelConfig = {
+    const config = {
+      '\$schema': 'https://opencode.ai/config.json',
       model: models[0].id, // Default to the first one
       provider: {
         'local-openai': {
@@ -171,24 +136,30 @@ async function main() {
           },
           models: {}
         }
+      },
+      mcp: {
+        'swarm-tools': {
+            type: 'local',
+            command: ['bun', 'run', path.join('$REPO_ROOT', 'swarm-tools/packages/opencode-swarm-plugin/claude-plugin/bin/swarm-mcp-server.ts')]
+        }
       }
     };
 
     // Populate models map
     models.forEach(m => {
-        modelConfig.provider['local-openai'].models[m.id] = {
+        config.provider['local-openai'].models[m.id] = {
             name: m.id + ' (Local)'
         };
         // Smart default: prefer gpt-oss-120b if available
         if (m.id.includes('120b')) {
-            modelConfig.model = m.id;
+            config.model = m.id;
         }
     });
 
-    console.log(\`   Defaulting to: \${modelConfig.model}\`);
+    console.log(\`   Defaulting to: \${config.model}\`);
     
-    fs.writeFileSync('$OPENCODE_JSON_PATH', JSON.stringify(modelConfig, null, 2));
-    console.log('✅ Generated opencode.json with dynamic model list.');
+    fs.writeFileSync('$OPENCODE_JSON_PATH', JSON.stringify(config, null, 2));
+    console.log('✅ Generated opencode.json with dynamic model list AND MCP servers.');
 
   } catch (error) {
     console.error('⚠️  Failed to fetch models dynamically:', error.message);
@@ -211,6 +182,12 @@ async function main() {
             }
           }
         }
+      },
+      mcp: {
+        'swarm-tools': {
+            type: 'local',
+            command: ['bun', 'run', path.join('$REPO_ROOT', 'swarm-tools/packages/opencode-swarm-plugin/claude-plugin/bin/swarm-mcp-server.ts')]
+        }
       }
     };
     fs.writeFileSync('$OPENCODE_JSON_PATH', JSON.stringify(fallback, null, 2));
@@ -223,6 +200,5 @@ main();
 echo ""
 echo "👉 Action Required:"
 echo "   1. Restart OpenCode to apply changes."
-echo "   2. Configure MCP Servers in OpenCode Settings using:"
-echo "      $MCP_CONFIG_PATH"
-echo "   3. Verify 'Swarm Orchestrator' is in your Agent list."
+echo "   2. Verify 'Swarm Orchestrator' is in your Agent list."
+echo "   3. Verify MCP Servers are loaded in OpenCode."
