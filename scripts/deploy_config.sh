@@ -16,7 +16,7 @@ cat << 'EOF' > "$OPENCODE_CONFIG_DIR/transform_agents.ts"
 const fs = require('fs');
 const path = require('path');
 
-const srcDir = process.env.SRC_DIR;
+const srcDirs = process.env.SRC_DIRS.split(',');
 const destDir = process.env.DEST_DIR;
 
 const colorMap = {
@@ -35,6 +35,8 @@ const colorMap = {
 };
 
 function processDir(currentPath, relPath = '') {
+  if (!fs.existsSync(currentPath)) return;
+  
   const entries = fs.readdirSync(currentPath, { withFileTypes: true });
   const destCurrentPath = path.join(destDir, relPath);
   
@@ -77,16 +79,21 @@ function processDir(currentPath, relPath = '') {
   }
 }
 
-if (fs.existsSync(srcDir)) {
-    processDir(srcDir);
-    console.log('✅ Agents processed and synced.');
-} else {
-    console.log('⚠️ Agents directory not found.');
+// Process each source directory
+for (const src of srcDirs) {
+    if (fs.existsSync(src)) {
+        console.log(`   Processing: ${src}`);
+        processDir(src);
+    } else {
+        console.log(`   Skipping missing source: ${src}`);
+    }
 }
+console.log('✅ Agents processed and synced.');
 EOF
 
 # Execute the transformation script
-SRC_DIR="$REPO_ROOT/agents" DEST_DIR="$OPENCODE_CONFIG_DIR/agents" bun "$OPENCODE_CONFIG_DIR/transform_agents.ts"
+# We pass multiple source directories separated by comma
+SRC_DIRS="$REPO_ROOT/agents,$REPO_ROOT/scaffolding/overlays/agents" DEST_DIR="$OPENCODE_CONFIG_DIR/agents" bun "$OPENCODE_CONFIG_DIR/transform_agents.ts"
 rm "$OPENCODE_CONFIG_DIR/transform_agents.ts"
 
 # 2. Generate MCP Config with Absolute Paths
