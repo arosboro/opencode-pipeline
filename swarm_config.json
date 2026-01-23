@@ -1,6 +1,0 @@
-{
-  "primaryModel": "openai/gpt-oss-20b",
-  "plannerModel": "openai/gpt-oss-20b",
-  "coderModel": "overthinking-rustacean-behemoth_mlx_8",
-  "embeddingModel": "text-embedding-nomic-embed-text-v1.5"
-}

@@ -12,13 +12,21 @@ echo "🚀 Starting OpenCode Swarm..."
 
 # 1. Detect and Select Model (Interactive)
 echo "🔍 Detecting AI Models..."
-# Run the interactive detection script. 
-# It prints logs to stderr (visible to user) and the ID to stdout (captured here).
-DETECTED_MODEL_ID=$(bun run scaffolding/detect_model.ts)
+# Run the interactive detection script directly (std in/out/err connected to terminal)
+bun run scaffolding/detect_model.ts
 
 # Check if detection was successful (script exits 1 on failure/quit)
 if [ $? -ne 0 ]; then
     echo "❌ Model selection cancelled or failed. Exiting."
+    exit 1
+fi
+
+# Read result from file
+if [ -f ".last_detected_model" ]; then
+    DETECTED_MODEL_ID=$(cat .last_detected_model)
+    rm .last_detected_model
+else
+    echo "❌ Error: Could not determine selected model."
     exit 1
 fi
 

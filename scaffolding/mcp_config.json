@@ -1,26 +1,14 @@
 {
   "mcpServers": {
-    "filesystem": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "."
-      ]
-    },
-    "memory": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-memory"
-      ]
-    },
     "swarm-tools": {
-      "command": "bun",
+      "command": "node",
       "args": [
-        "run",
-        "swarm-tools/packages/opencode-swarm-plugin/claude-plugin/bin/swarm-mcp-server.ts"
-      ]
+        "/opt/homebrew/lib/node_modules/opencode-swarm-plugin/claude-plugin/bin/swarm-mcp-server.cjs"
+      ],
+      "env": {
+        "CLAUDE_PLUGIN_ROOT": "/opt/homebrew/lib/node_modules/opencode-swarm-plugin/claude-plugin"
+      }
     }
   }
 }
+

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "swarm-mcp": {
+      "type": "local",
+      "command": ["node", "/opt/homebrew/lib/node_modules/opencode-swarm-plugin/claude-plugin/bin/swarm-mcp-server.cjs"],
+      "env": {
+        "CLAUDE_PLUGIN_ROOT": "/opt/homebrew/lib/node_modules/opencode-swarm-plugin/claude-plugin"
+      },
+      "enabled": true
+    }
+  }
+}

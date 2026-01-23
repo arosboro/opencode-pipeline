@@ -112,23 +112,27 @@ async function main() {
   for (const [serverName, srvConfig] of Object.entries(mcpConfig.mcpServers)) {
       const c = srvConfig as any;
       console.log(`   - Starting ${serverName} (${c.command} ${c.args.join(" ")})...`);
-      // In a full implementation, we spawn here. For this verification step, we verify config validity.
-      // We will perform a 'dry run' spawn to ensure the command exists.
       try {
-         // Using 'which' or checking command existence would be good here, 
-         // but for now we just confirm the config is valid JSON and has args.
-         if (!c.command || !Array.isArray(c.args)) {
-             throw new Error("Invalid MCP config structure");
-         }
+         const pluginRoot = join(process.cwd(), "swarm-tools/packages/opencode-swarm-plugin");
+         const env = { 
+             ...process.env, 
+             CLAUDE_PLUGIN_ROOT: pluginRoot
+         };
+         
+         const child = spawn(c.command, c.args, { stdio: "inherit", env });
+         child.on("error", (err: Error) => {
+             console.error(`   ❌ Failed to start ${serverName}:`, err);
+         });
+         console.log(`   ✅ ${serverName} started (PID: ${child.pid})`);
       } catch (err) {
-          console.error(`   ❌ Failed to prepare ${serverName}`, err);
+          console.error(`   ❌ Failed to spawn ${serverName}`, err);
       }
   }
 
   // 3. System Ready
   console.log("\n✅ MOE System Ready.");
   console.log(`   Current Model: ${modelId}`);
-  console.log(`   Ready to route tasks to ${config.experts.length} experts.`);
+  console.log(`   Routing to ${config.experts.length} specialists.`);
   
   // Keep process alive to simulate daemon mode
   setInterval(() => {}, 5000);
